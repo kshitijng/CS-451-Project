@@ -1,3 +1,9 @@
+"""
+Run as `python3 batch_by_month.py "apr,may,jun,jul,aug,sep,oct,nov"`
+The value passed in is a comma-separated list of the months we want to aggregate for
+We can just use nov going forward.
+"""
+
 import csv
 import sys
 from os import listdir
