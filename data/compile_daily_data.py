@@ -1,7 +1,8 @@
 """ Prepare the csv that will be input to the ML model
 
 Since Twitter Data starts on April 1, we can prepare data from April 8, onwards
-We can prepare data for up to 7 days before present.
+We can prepare data for up to 7 days before present (assuming we have covid
+case data for yesterday).
 
 The CSV will have the following fields:
     1. Date (ex. 2020-11-20)
@@ -22,6 +23,7 @@ The CSV will have the following fields:
     16. Google trend over the last week for "symptoms"
     17. Google trend over the last week for "tired"
     18. Google trend over the last week for "virus"
+    TODO:
     19 - ??. Results from the Twitter data analysis over the last week (2020-11-13 to 2020-11-19)
 """
 
