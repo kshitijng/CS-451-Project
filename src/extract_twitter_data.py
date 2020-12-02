@@ -10,21 +10,19 @@ csv.field_size_limit(sys.maxsize)
 INPUT = "tst_result"
 
 KEY_TERMS = {
-    'global_bigrams': ['SOCIAL DISTANCING', 'LOCKDOWN 2', 'COVID19 PANDEMIC',
-                       '2ND LOCKDOWN', 'COVID 19', 'ANOTHER LOCKDOWN',
-                       'CASES OF', 'THE PANDEMIC', 'COVID19 CASES',
+    'global_bigrams': ['SOCIAL DISTANCING', 'COVID19 PANDEMIC',
+                       'COVID 19', 'CASES OF', 'THE PANDEMIC', 'COVID19 CASES',
                        'CORONAVIRUS CASES', 'NEW CASES', 'SPREAD OF',
                        'TO WEAR', 'COVID19 TESTING', 'FACE MASKS',
                        'TESTED POSITIVE', 'A PANDEMIC', 'COVID19 IN',
                        'CORONAVIRUS IN', 'THE VIRUS'],
     'global_unigrams': ['DEATHS', 'POSITIVE', 'RESTRICTIONS', 'DEATH', 'CRISIS',
-                        'NURSING', 'CORONA'],
+                        'CORONA'],
     'canada_bigrams': ['COVID19 CASES', 'NEW COVID19', 'COVID CASES',
                        'JOHNS HOPKINS', 'COVID19 PANDEMIC', 'CORONAVIRUS CASES',
                        'NEW COVID', 'SURGED TO', 'CANADA COVID19',
-                       'CASES TODAY', 'HAVE SURGED', 'WAVE OF', 'CASES NEARING',
-                       'COVID19 UPDATE', 'SPREAD OF', 'CASE SURGE',
-                       'HAVE INCREASED', 'TESTED POSITIVE'],
+                       'CASES TODAY', 'WAVE OF', 'SPREAD OF',
+                       'HAVE INCREASED', 'TESTED POSITIVE', 'SOCIAL DISTANCING'],
     'canada_unigrams': ['COVID19', 'COVID', 'CASES', 'NEW', 'PANDEMIC',
                         'ONTARIO', 'TORONTO', 'CORONAVIRUS', 'HOPKINS', 'CASE',
                         'OTTAWA', 'LOCKDOWN', 'TESTS', 'TESTING', 'QUARANTINE'
