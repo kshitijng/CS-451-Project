@@ -40,7 +40,7 @@ def output_data(type, data):
 
     for term in KEY_TERMS[type]:
         term_output = '-'.join(term.lower().split(" "))
-        filename = "{}_{}".format(TYPE_SHORT[type], term_output)
+        filename = "{}_{}.csv".format(TYPE_SHORT[type], term_output)
         outfile = os.path.join(OUTPUT, filename)
 
         with open(outfile, 'w', newline='') as csvfile:

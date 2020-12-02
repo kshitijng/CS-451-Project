@@ -34,6 +34,7 @@ from os.path import isfile, join
 from datetime import timedelta, date, datetime
 
 GOOGLE_DATA = 'google_trends'
+TWITTER_DATA = 'twitter'
 NEW_CASES_DATA = 'covid_cases/cases_timeseries_canada.csv'
 ACTIVE_CASES_DATA = 'covid_cases/active_timeseries_canada.csv'
 OUTPUT_FILE = 'ml_input.csv'
@@ -50,6 +51,7 @@ def add_col(full_data, new_col):
 
 
 def read_csv_data(infile, start_date, end_date, date_col=0, data_col=1):
+    # print("  READ CSV DATA - Start {}, End {}".format(start_date, end_date))
     data = []
     reading = False
     with open(infile, 'r') as file:
@@ -70,10 +72,14 @@ def read_csv_data(infile, start_date, end_date, date_col=0, data_col=1):
 def get_covid_data(start_date, end_date, full_data):
     # Handle new case data (2 weeks ago, last week, week starting on date)
     print("Processing new case data")
+
+    # print("  COVID DATA - Start {}, End {}".format(start_date, end_date))
+
     start_date = start_date - timedelta(days=14)
+    end_date = end_date + timedelta(days=7)
     c_data = read_csv_data(infile=NEW_CASES_DATA,
                            start_date=start_date.strftime("%d-%m-%Y"),
-                           end_date=datetime.today().strftime("%d-%m-%Y"),
+                           end_date=end_date.strftime("%d-%m-%Y"),
                            date_col=1,
                            data_col=2)
 
@@ -96,6 +102,7 @@ def get_covid_data(start_date, end_date, full_data):
     # Handle active case data
     print("Processing active case data")
     start_date = start_date + timedelta(days=13)
+    end_date = end_date - timedelta(days=7)
     a_data = read_csv_data(infile=ACTIVE_CASES_DATA,
                            start_date=start_date.strftime("%d-%m-%Y"),
                            end_date=end_date.strftime("%d-%m-%Y"),
@@ -106,22 +113,44 @@ def get_covid_data(start_date, end_date, full_data):
     add_col(full_data, a_data)
 
 
-def get_google_data_files(dir):
+def get_csv_data_files(dir):
     files = []
     for f in listdir(dir):
+
         if isfile(join(dir, f)) and f.split('.')[-1] == 'csv':
             files.append(f)
     return files
 
 
 def get_google_data(start_date, end_date, full_data):
-    files = get_google_data_files(GOOGLE_DATA)
+    files = get_csv_data_files(GOOGLE_DATA)
     start_date = start_date - timedelta(days=7)
 
     for f in sorted(files):
         print("Processing {}".format(f))
         col = ["G_{}".format(f.split('_')[0])]
         data = read_csv_data(join(GOOGLE_DATA, f),
+                             start_date.strftime("%Y-%m-%d"),
+                             end_date.strftime("%Y-%m-%d"))
+
+        val = sum(data[:7])
+        col.append(val)
+        for i in range(len(data) - 7):
+            val -= data[i]
+            val += data[i+7]
+            col.append(val)
+
+        add_col(full_data, col)
+
+
+def get_twitter_data(start_date, end_date, full_data):
+    files = get_csv_data_files(TWITTER_DATA)
+    start_date = start_date - timedelta(days=7)
+
+    for f in sorted(files):
+        print("Processing {}".format(f))
+        col = ["T_{}".format(f.split('.')[0])]
+        data = read_csv_data(join(TWITTER_DATA, f),
                              start_date.strftime("%Y-%m-%d"),
                              end_date.strftime("%Y-%m-%d"))
 
@@ -147,7 +176,8 @@ def output_data(full_data):
 def main():
     start_date = datetime.strptime("2020-04-08", "%Y-%m-%d")
     # Set to six days ago (Iterator skips the last day)
-    end_date = datetime.today() - timedelta(days=6)
+    # end_date = datetime.today() - timedelta(days=6)
+    end_date = datetime.strptime("2020-11-11", "%Y-%m-%d")
 
     full_data = [["date"]]
 
@@ -156,9 +186,14 @@ def main():
 
     end_date = end_date - timedelta(days=1)
 
+    print("Data range: {} - {}, {} days"
+          .format(full_data[1], full_data[-1], len(full_data)-1))
+
     get_covid_data(start_date, end_date, full_data)
 
     get_google_data(start_date, end_date, full_data)
+
+    get_twitter_data(start_date, end_date, full_data)
 
     output_data(full_data)
 
