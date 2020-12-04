@@ -10,14 +10,6 @@ csv.field_size_limit(sys.maxsize)
 INPUT = "tst_result"
 
 KEY_TERMS = {
-    'global_bigrams': ['SOCIAL DISTANCING', 'COVID19 PANDEMIC',
-                       'COVID 19', 'CASES OF', 'THE PANDEMIC', 'COVID19 CASES',
-                       'CORONAVIRUS CASES', 'NEW CASES', 'SPREAD OF',
-                       'TO WEAR', 'COVID19 TESTING', 'FACE MASKS',
-                       'TESTED POSITIVE', 'A PANDEMIC', 'COVID19 IN',
-                       'CORONAVIRUS IN', 'THE VIRUS'],
-    'global_unigrams': ['DEATHS', 'POSITIVE', 'RESTRICTIONS', 'DEATH', 'CRISIS',
-                        'CORONA'],
     'canada_bigrams': ['COVID19 CASES', 'NEW COVID19', 'COVID CASES',
                        'JOHNS HOPKINS', 'COVID19 PANDEMIC', 'CORONAVIRUS CASES',
                        'NEW COVID', 'SURGED TO', 'CANADA COVID19',
@@ -26,7 +18,15 @@ KEY_TERMS = {
     'canada_unigrams': ['COVID19', 'COVID', 'CASES', 'NEW', 'PANDEMIC',
                         'ONTARIO', 'TORONTO', 'CORONAVIRUS', 'HOPKINS', 'CASE',
                         'OTTAWA', 'LOCKDOWN', 'TESTS', 'TESTING', 'QUARANTINE'
-                        'POSITIVE', 'DEATHS', 'DEATH', 'CORONA']
+                        'POSITIVE', 'DEATHS', 'DEATH', 'CORONA'],
+    'global_bigrams': ['SOCIAL DISTANCING', 'COVID19 PANDEMIC',
+                       'COVID 19', 'CASES OF', 'THE PANDEMIC', 'COVID19 CASES',
+                       'CORONAVIRUS CASES', 'NEW CASES', 'SPREAD OF',
+                       'TO WEAR', 'COVID19 TESTING', 'FACE MASKS',
+                       'TESTED POSITIVE', 'A PANDEMIC', 'COVID19 IN',
+                       'CORONAVIRUS IN', 'THE VIRUS'],
+    'global_unigrams': ['DEATHS', 'POSITIVE', 'RESTRICTIONS', 'DEATH', 'CRISIS',
+                        'CORONA'],
 }
 
 TYPE_SHORT = {'canada_unigrams': 'CU', 'canada_bigrams': 'CB',
@@ -34,6 +34,10 @@ TYPE_SHORT = {'canada_unigrams': 'CU', 'canada_bigrams': 'CB',
 
 OUTPUT = 'data/twitter'
 MONTHS = ['04_apr', '05_may', '06_jun', '07_jul', '08_aug', '09_sep', '10_oct', '11_nov']
+
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + timedelta(n)
 
 def output_data(type, data):
     dates = sorted(data.keys())
@@ -59,6 +63,9 @@ if not os.path.exists(OUTPUT):
 for k in KEY_TERMS:
     print("Doing: {}".format(k))
     type_data = {}
+
+    first_day = None
+    last_day = None
 
     for month in MONTHS:
         print("  Month: {}".format(month))
@@ -86,6 +93,10 @@ for k in KEY_TERMS:
                     continue
                 row_date_out = datetime.strftime(row_date, "2020-%m-%d")
 
+                if not first_day:
+                    first_day = row_date
+                last_day = row_date
+
                 if row_date_out not in type_data:
                     type_data[row_date_out] = {}
 
@@ -95,6 +106,14 @@ for k in KEY_TERMS:
                     type_data[row_date_out][term] = day_data.get(term, 0) + \
                         type_data[row_date_out].get(term,0)
 
+
+    # Ensure no missing data
+    for d in daterange(first_day, last_day):
+        exp_date = d.strftime("2020-%m-%d")
+        if exp_date not in type_data:
+            type_data[exp_date] = {}
+        for term in KEY_TERMS[k]:
+            type_data[exp_date][term] = type_data[exp_date].get(term, 0)
 
     print("  Outputting type data")
     output_data(k, type_data)

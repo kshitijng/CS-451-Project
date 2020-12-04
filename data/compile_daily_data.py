@@ -178,7 +178,7 @@ def main():
     # Set to six days ago (Iterator skips the last day)
     # end_date = datetime.today() - timedelta(days=6)
     # Max end date is 6 days before last day with complete data
-    end_date = datetime.strptime("2020-12-01", "%Y-%m-%d")
+    end_date = datetime.strptime("2020-11-24", "%Y-%m-%d")
 
     full_data = [["date"]]
 
