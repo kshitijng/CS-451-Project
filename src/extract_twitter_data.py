@@ -17,7 +17,7 @@ KEY_TERMS = {
                        'HAVE INCREASED', 'TESTED POSITIVE', 'SOCIAL DISTANCING'],
     'canada_unigrams': ['COVID19', 'COVID', 'CASES', 'NEW', 'PANDEMIC',
                         'ONTARIO', 'TORONTO', 'CORONAVIRUS', 'HOPKINS', 'CASE',
-                        'OTTAWA', 'LOCKDOWN', 'TESTS', 'TESTING', 'QUARANTINE'
+                        'OTTAWA', 'LOCKDOWN', 'TESTS', 'TESTING', 'QUARANTINE',
                         'POSITIVE', 'DEATHS', 'DEATH', 'CORONA'],
     'global_bigrams': ['SOCIAL DISTANCING', 'COVID19 PANDEMIC',
                        'COVID 19', 'CASES OF', 'THE PANDEMIC', 'COVID19 CASES',
