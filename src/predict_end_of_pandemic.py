@@ -6,17 +6,6 @@ import matplotlib.pyplot as plt         # `pip3 install matplotlib`
 ## For parametric fitting
 from scipy import optimize              # `pip3 install scipy`
 
-# from pyspark.sql.functions import col   # `pip3 install pyspark`
-# import pyspark
-# from pyspark.sql import SparkSession
-# from pyspark.sql import SQLContext
-# from pyspark.sql.functions import col,lit
-
-
-# sc = pyspark.SparkContext()
-# sqlContext = SQLContext(sc)
-
-# dtf = pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", sep=",")
 dtf = pd.read_csv("https://raw.githubusercontent.com/ishaberry/Covid19Canada/master/timeseries_canada/cases_timeseries_canada.csv", sep=",")
 print(dtf.head())
 
@@ -62,11 +51,6 @@ logistic_model, cov = optimize.curve_fit(logistic_f,
                                 p0=[np.max(dtf["cumulative_cases"]), 1, 1])
 ## print the parameters
 print(logistic_model)
-# [4.91608621e+09 9.07831583e-03 1.37147061e+03]
-# With only data since August: 
-# [6.44282345e+10 1.13070606e-02 1.19837460e+03]
-
-
 
 
 '''
@@ -85,10 +69,6 @@ gaussian_model, cov = optimize.curve_fit(gaussian_f,
                                 )
 ## print the parameters
 print(gaussian_model)
-# [1.00000000e+00 1.13355082e+03 1.00000000e+00]
-# With only data since August:
-# [1.00000000e+00 2.17067939e+03 1.00000000e+00]
-
 
 
 '''
