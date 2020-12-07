@@ -6,24 +6,42 @@ import matplotlib.pyplot as plt         # `pip3 install matplotlib`
 ## For parametric fitting
 from scipy import optimize              # `pip3 install scipy`
 
+# from pyspark.sql.functions import col   # `pip3 install pyspark`
+# import pyspark
+# from pyspark.sql import SparkSession
+# from pyspark.sql import SQLContext
+# from pyspark.sql.functions import col,lit
+
+
+# sc = pyspark.SparkContext()
+# sqlContext = SQLContext(sc)
 
 # dtf = pd.read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv", sep=",")
 dtf = pd.read_csv("https://raw.githubusercontent.com/ishaberry/Covid19Canada/master/timeseries_canada/cases_timeseries_canada.csv", sep=",")
 print(dtf.head())
-
-# dtf.plot()
-# plt.show()
 
 
 # Columns:     date_report  cases  cumulative_cases
 ## convert date_report to datetime
 dtf.date_report = pd.to_datetime(dtf.date_report, infer_datetime_format=True)
 
+
+## Filter out the first spike because we're big lame smudgy boys
+dtf_before = dtf[dtf['date_report'] <= pd.to_datetime('2020-03-08')]
+dtf_after = dtf[dtf['date_report'] >= pd.to_datetime('2020-08-01')]
+
+# dtf = pd.concat([dtf_before, dtf_after])
+dtf = dtf_after
+
+print(dtf.head())
+print(dtf.tail())
+
 ## Change date_report to be the index column
 dtf = dtf.reset_index().set_index('date_report')
 
 ## Drop Provice/Country and 'index' columns
 dtf = dtf.drop(['province','index'], axis=1)
+
 
 print(dtf.head())
 print(dtf.tail())
@@ -45,7 +63,8 @@ logistic_model, cov = optimize.curve_fit(logistic_f,
 ## print the parameters
 print(logistic_model)
 # [4.91608621e+09 9.07831583e-03 1.37147061e+03]
-
+# With only data since August: 
+# [6.44282345e+10 1.13070606e-02 1.19837460e+03]
 
 
 
@@ -61,11 +80,14 @@ gaussian_model, cov = optimize.curve_fit(gaussian_f,
                                 xdata=np.arange(len(dtf["cases"])), 
                                 ydata=dtf["cases"].values, 
                                 maxfev=10000,
-                                p0=[1, np.mean(dtf["cases"]), 1])
+                                # p0=[1, np.mean(dtf["cases"]), 1]
+                                p0 = None
+                                )
 ## print the parameters
 print(gaussian_model)
 # [1.00000000e+00 1.13355082e+03 1.00000000e+00]
-
+# With only data since August:
+# [1.00000000e+00 2.17067939e+03 1.00000000e+00]
 
 
 
@@ -133,5 +155,5 @@ def forecast_curve(ts, f, model, pred_ahead=None, freq="D", zoom=30, figsize=(15
 preds_cumulative_cases = forecast_curve(dtf["cumulative_cases"], logistic_f, logistic_model, pred_ahead=30, freq="D", zoom=7)
 
 
-preds_new_cases = forecast_curve(dtf["cases"], gaussian_f, gaussian_model, pred_ahead=30, freq="D", zoom=7)
+preds_new_cases = forecast_curve(dtf["cases"], gaussian_f, gaussian_model, pred_ahead=500, freq="D", zoom=7)
 
