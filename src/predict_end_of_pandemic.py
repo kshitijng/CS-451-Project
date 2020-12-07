@@ -48,7 +48,9 @@ logistic_model, cov = optimize.curve_fit(logistic_f,
                                 xdata=np.arange(len(dtf["cumulative_cases"])), 
                                 ydata=dtf["cumulative_cases"].values, 
                                 maxfev=10000, 
-                                p0=[np.max(dtf["cumulative_cases"]), 1, 1])
+                                p0=[np.max(dtf["cumulative_cases"])*1.5, 1, 1]
+                                # p0 = None
+                                )
 ## print the parameters
 print(logistic_model)
 
@@ -132,7 +134,7 @@ def forecast_curve(ts, f, model, pred_ahead=None, freq="D", zoom=30, figsize=(15
     return dtf
 
 
-preds_cumulative_cases = forecast_curve(dtf["cumulative_cases"], logistic_f, logistic_model, pred_ahead=30, freq="D", zoom=7)
+preds_cumulative_cases = forecast_curve(dtf["cumulative_cases"], logistic_f, logistic_model, pred_ahead=500, freq="D", zoom=7)
 
 
 preds_new_cases = forecast_curve(dtf["cases"], gaussian_f, gaussian_model, pred_ahead=500, freq="D", zoom=7)
