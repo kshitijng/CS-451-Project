@@ -134,7 +134,7 @@ def forecast_curve(ts, f, model, pred_ahead=None, freq="D", zoom=30, figsize=(15
     return dtf
 
 
-preds_cumulative_cases = forecast_curve(dtf["cumulative_cases"], logistic_f, logistic_model, pred_ahead=500, freq="D", zoom=7)
+preds_cumulative_cases = forecast_curve(dtf["cumulative_cases"], logistic_f, logistic_model, pred_ahead=2000, freq="D", zoom=7)
 
 
 preds_new_cases = forecast_curve(dtf["cases"], gaussian_f, gaussian_model, pred_ahead=500, freq="D", zoom=7)
