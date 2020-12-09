@@ -40,7 +40,7 @@ date_udf = udf(lambda z: split_date(z))
 
 pattern_list_cap = ["CANADA", "ONTARIO", "VANCOUVER", "TORONTO", "OTTAWA", "MONTREAL", "WATERLOO", "KITCHENER"]
 
-input_file_list = ["04_apr.csv", "05_may.csv", "06_jun.csv", "07_jul.csv", "08_aug.csv", "09_sep.csv", "11_nov-01-11.csv"]
+input_file_list = ["04_apr.csv", "05_may.csv", "06_jun.csv", "07_jul.csv", "08_aug.csv", "09_sep.csv", "10_oct.csv", "11_nov.csv"]
 
 for month in input_file_list:
     df = spark.read.csv('data/ieee_hydrated/' + month, header=True)
@@ -62,7 +62,7 @@ for month in input_file_list:
     result_df = canada_tweets_per_day.join(global_tweets_per_day, "new_date")
 
     # 5. Prep for Bigrams
-    unigram_gen = NGram(n=1, inputCol="arr", outputCol="unigrams") 
+    unigram_gen = NGram(n=1, inputCol="arr", outputCol="unigrams")
     bigram_gen = NGram(n=2, inputCol="arr", outputCol="bigrams")
 
     # 6. Canada Bigrams
@@ -97,6 +97,3 @@ for month in input_file_list:
 
     result_df = result_df.join(mentioned_canada_tweets_per_day, "new_date")
     result_df.orderBy("new_date").coalesce(1).write.format('csv').save('tst_result/' + month[0:6])
-
-
-

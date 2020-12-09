@@ -1,5 +1,17 @@
+You can run the get_covid_case_data.py helper functions with hardcoded examples 
+by doing `python3 get_covid_case_data.py`
+
 I got this covid case data from this repo: https://github.com/ishaberry/Covid19Canada
 File: https://github.com/ishaberry/Covid19Canada/blob/master/timeseries_canada/cases_timeseries_canada.csv
+
+
+If you're having trouble with ssl stuff and you're on macOS you might have to 
+do the following: 
+Go to Macintosh HD > Applications > Python3.6 folder (or whatever version of python3 you're using) > double click on "Install Certificates.command" file.
+
+
+
+
 
 
 

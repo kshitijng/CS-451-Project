@@ -2,9 +2,9 @@
 
 import csv
 import sys
-from os import listdir
-from os.path import isfile, join
-import urllib
+import os 
+import os.path
+import urllib.request
 
 
 #### Implementation that uses local/manually fetched data, might be stale
@@ -14,6 +14,7 @@ CASES_FILE = 'cases_timeseries_canada.csv'
 
 
 def num_cases_by_day(date):
+    # print(os.path.gettime(CASES_FILE))
     with open(CASES_FILE, 'r') as file:
         reader = csv.reader(file)
         for row in reader:
@@ -47,7 +48,7 @@ def num_cases_by_week(first_day_of_week):
 num_cases_by_week("11-03-2020")
 
 # ex. calling this prints "This won't be a full 7-day week!" the value
-num_cases_by_week("20-11-2020")
+num_cases_by_week("17-11-2020")
 # also yikes Canada isn't doing too hot
 
 
@@ -58,7 +59,11 @@ num_cases_by_week("20-11-2020")
 #### Implementation that fetches data every time, fresh, might be slow
 
 def num_cases_by_day_fresh(date):
-    reader = csv.reader(urllib.urlopen("https://raw.githubusercontent.com/ishaberry/Covid19Canada/master/timeseries_canada/cases_timeseries_canada.csv"))
+    url = "https://raw.githubusercontent.com/ishaberry/Covid19Canada/master/timeseries_canada/cases_timeseries_canada.csv"
+    file = urllib.request.urlopen(url)
+    lines = [l.decode('utf-8') for l in file.readlines()]
+    reader = csv.reader(lines)
+
     for row in reader:
         if row[1] == date: 
             print(str(row[2]))
@@ -67,8 +72,12 @@ def num_cases_by_day_fresh(date):
 # for example, calling this prints/returns 211
 num_cases_by_day_fresh("03-08-2020")
 
-def num_cases_by_week_fresh(first_day_of_week):
-    reader = csv.reader(urllib.urlopen("https://raw.githubusercontent.com/ishaberry/Covid19Canada/master/timeseries_canada/cases_timeseries_canada.csv"))
+def num_cases_by_week_fresh(first_day_of_week):    
+    url = "https://raw.githubusercontent.com/ishaberry/Covid19Canada/master/timeseries_canada/cases_timeseries_canada.csv"
+    file = urllib.request.urlopen(url)
+    lines = [l.decode('utf-8') for l in file.readlines()]
+    reader = csv.reader(lines)
+
     counting = 0
     for row in reader:
         if row[1] == first_day_of_week: 
@@ -89,6 +98,6 @@ def num_cases_by_week_fresh(first_day_of_week):
 num_cases_by_week_fresh("11-03-2020")
 
 # ex. calling this prints "This won't be a full 7-day week!" and the value
-num_cases_by_week_fresh("20-11-2020")
+num_cases_by_week_fresh("22-11-2020")
 # also yikes Canada isn't doing too hot
 
