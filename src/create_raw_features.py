@@ -40,7 +40,7 @@ date_udf = udf(lambda z: split_date(z))
 
 pattern_list_cap = ["CANADA", "ONTARIO", "VANCOUVER", "TORONTO", "OTTAWA", "MONTREAL", "WATERLOO", "KITCHENER"]
 
-input_file_list = ["04_apr.csv", "05_may.csv", "06_jun.csv", "07_jul.csv", "08_aug.csv", "09_sep.csv", "10_oct.csv", "11_nov.csv"]
+input_file_list = ["04_apr.csv", "05_may.csv", "06_jun.csv", "07_jul.csv", "08_aug.csv", "09_sep.csv", "10_oct.csv", "11_nov.csv", "12_dec.csv"]
 
 for month in input_file_list:
     df = spark.read.csv('data/ieee_hydrated/' + month, header=True)

@@ -33,7 +33,7 @@ TYPE_SHORT = {'canada_unigrams': 'CU', 'canada_bigrams': 'CB',
               'global_unigrams': 'GU', 'global_bigrams': 'GB'}
 
 OUTPUT = 'data/twitter'
-MONTHS = ['04_apr', '05_may', '06_jun', '07_jul', '08_aug', '09_sep', '10_oct', '11_nov']
+MONTHS = ['04_apr', '05_may', '06_jun', '07_jul', '08_aug', '09_sep', '10_oct', '11_nov', '12_dec']
 
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):

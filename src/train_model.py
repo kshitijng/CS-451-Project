@@ -8,15 +8,26 @@ import csv
 import os
 
 OUTPUT_DIR = "data/ml_result"
+TRAINING_DATA = "data/ml_training/ml_input.csv"
+TEST_DATA = "data/ml_training/ml_test.csv"
 
 LR_MODEL = []
-
 DT_MODEL = []
-
 GBDT_MODEL = []
+
+TRAIN_LR = True
+TRAIN_DT = False
+TRAIN_GBDT = False
 
 
 def output_data(data, file):
+    '''
+    Output results of model testing to a csv file.
+
+    Args:
+        data: A list of lists containing the model data
+        file: The file path to which data is output
+    '''
     dest = os.path.join(OUTPUT_DIR, file)
     print("Outputting to {}".format(dest))
     with open(dest, 'w', newline='') as csvfile:
@@ -28,104 +39,115 @@ def output_data(data, file):
 
 
 def run_linear_regression(train_df, test_df, features_col="features", label_col="actual_cases"):
-    '''Run a Linear Regression model on this data'''
-    # print("  Running Linear Regression")
+    '''
+    Run a Linear Regression model on given training and test data.
+
+    Args:
+        train_df: A dataframe containing training data for the model.
+        test_df: A dataframe containing test data for the model.
+        features_col: The column in the dataframe containing the features.
+        label_col: The column in the dataframe containing the predicted value.
+
+    Return:
+        r2: r^2 error of the model.
+        rmse: Root Mean Squared Error of the model.
+    '''
     lr = LinearRegression(featuresCol = features_col, labelCol=label_col,
                           maxIter=100, regParam=0.3, elasticNetParam=0.8)
     lr_model = lr.fit(train_df)
-    # print("Coefficients: " + str(lr_model.coefficients))
-    # print("Intercept: " + str(lr_model.intercept))
 
-    # Some stats about the training model
+    # r^2 value of the model on the training data
     trainingSummary = lr_model.summary
     r2 = trainingSummary.r2
-    # print("    Training r^2: %f" % trainingSummary.r2)
-    # print("    Training RMSE: %f" % trainingSummary.rootMeanSquaredError)
-
-    # train_df.describe().show()
 
     # Making predictions on test data and evaluating it
     lr_predictions = lr_model.transform(test_df)
+
+    # Show the prediction for some rows
     # lr_predictions.select("prediction",label_col,features_col).show(5)
 
     lr_evaluator = RegressionEvaluator(predictionCol="prediction", \
                      labelCol=label_col,metricName="r2")
-    # print("    Test r^2: %g" % lr_evaluator.evaluate(lr_predictions) )
 
     test_result = lr_model.evaluate(test_df)
     rmse = test_result.rootMeanSquaredError
-    # print("    Test RMSE: %g" % rmse)
 
     return (r2, rmse)
 
 
 def run_decision_tree(train_df, test_df, features_col="features", label_col="actual_cases"):
-    '''Run a decision tree.'''
+    '''
+    Run a decision tree model on given training and test data.
 
-    # print("  Running Decision Tree")
+    Args:
+        train_df: A dataframe containing training data for the model.
+        test_df: A dataframe containing test data for the model.
+        features_col: The column in the dataframe containing the features.
+        label_col: The column in the dataframe containing the predicted value.
+
+    Return:
+        rmse: Root Mean Squared Error of the model.
+    '''
     dt = DecisionTreeRegressor(featuresCol=features_col, labelCol=label_col)
     dt_model = dt.fit(train_df)
     dt_predictions = dt_model.transform(test_df)
+
+    # Show the prediction for some rows
     # dt_predictions.select("prediction",label_col,features_col).show(5)
 
     dt_evaluator = RegressionEvaluator(
         labelCol=label_col, predictionCol="prediction", metricName="rmse")
     rmse = dt_evaluator.evaluate(dt_predictions)
-    # print("    Test RMSE: %g" % rmse)
 
     return rmse
 
 
 def run_gb_tree(train_df, test_df, features_col="features", label_col="actual_cases"):
-    '''Run a Gradient-boosted Tree Regression'''
-    # print("  Running Gradient Boosted Decision Tree")
+    '''
+    Run a Gradient-boosted Tree Regression model on given training and test data.
+
+    Args:
+        train_df: A dataframe containing training data for the model.
+        test_df: A dataframe containing test data for the model.
+        features_col: The column in the dataframe containing the features.
+        label_col: The column in the dataframe containing the predicted value.
+
+    Return:
+        rmse: Root Mean Squared Error of the model.
+    '''
     gbt = GBTRegressor(featuresCol=features_col, labelCol=label_col, maxIter=10)
     gbt_model = gbt.fit(train_df)
     gbt_predictions = gbt_model.transform(test_df)
+
+    # Show the prediction for some rows
     # gbt_predictions.select('prediction', label_col, features_col).show(5)
 
     gbt_evaluator = RegressionEvaluator(
         labelCol=label_col, predictionCol="prediction", metricName="rmse")
     rmse = gbt_evaluator.evaluate(gbt_predictions)
-    # print("    Test RMSE: %g" % rmse)
 
     return rmse
 
 
-def test_inputs(train_df, test_df, input_cols, features_col="features", label_col="actual_cases"):
-    '''Test all models on inputs'''
-    vectorAssembler = VectorAssembler(
-        inputCols = input_cols,
-        outputCol = features_col
-    )
-    test_df = vectorAssembler.transform(test_df).select([features_col, label_col])
-    train_df = vectorAssembler.transform(train_df).select([features_col, label_col])
-
-    # print(str(test_df.collect()))
-    # print(str(train_df.collect()))
-
-    lr_r2, lr_rmse = run_linear_regression(train_df, test_df)
-    dt_rmse = run_decision_tree(train_df, test_df)
-    gbdt_rmse = run_gb_tree(train_df, test_df)
-
-    return [lr_r2, lr_rmse, dt_rmse, gbdt_rmse]
-
-
-def test_cols(train_df, test_df, cols):
-    result = [] # [['column', 'lr_training_r2', "lr_rmse", "dt_rmse", 'gbdt_rmse']]
-    # cols = ['T_CU_quarantine', 'T_CU_positive']
-    for c in cols:
-        print("Checking {}".format(c))
-        row = test_inputs(train_df, test_df, [c])
-        result.append([c] + row)
-        # break
-
-    print("RESULT: {}".format(result))
-    output_data(result)
-
-
 def assemble_vectors(train_df, test_df, input_cols, features_col="features", label_col="actual_cases"):
-    '''Test all models on inputs'''
+    '''
+    Given a training and test dataframe, extract the specified input_cols to
+    create featuers and the label_col to create a label that can be used by
+    ML models.
+
+    Args:
+        train_df: A dataframe containing training data for the model.
+        test_df: A dataframe containing test data for the model.
+        input_cols: The columns from the full dataframe that will be used as
+                    features for the ML models.
+        features_col: The name of the newly created features column.
+        label_col: The name of the column in the data that is to be predicted
+                   by the ML models.
+
+    Returns:
+        train2_df: A traning dataframe with the selected features and label
+        test2_df: A test dataframe with the selected features and label
+    '''
     vectorAssembler = VectorAssembler(
         inputCols = input_cols,
         outputCol = features_col
@@ -137,6 +159,28 @@ def assemble_vectors(train_df, test_df, input_cols, features_col="features", lab
 
 
 def test_col_combos(train_df, test_df, lr=True, dt=True, gbdt=True):
+    '''
+    Given a training dataframe and test dataframe, test all the unused columns
+    along with the already selected columns (in LR_MODEL, DT_MODEL,
+    or GBDT_MODEL) in the respective ML model.
+    Return a summary of all the results.
+
+    Args:
+        train_df: A dataframe containing training data for the model.
+        test_df: A dataframe containing test data for the model.
+        lr: Boolean indicator denoting whether to test linear regression.
+        dt: Boolean indicator denoting whether to test decision tree.
+        gbdt: Boolean indicator denoting whether to test gradient boosted
+              decision tree.
+
+    Returns:
+        lr_result: A list of lists containing the results of linear regression
+                   testing.
+        dt_result: A list of lists containing the results of decision tree
+                   testing.
+        gbdt_result: A list of lists containing the results of gradient boosted
+                     decision tree testing.
+    '''
     cols = train_df.columns[2:]
     lr_result = []
     dt_result = []
@@ -149,7 +193,6 @@ def test_col_combos(train_df, test_df, lr=True, dt=True, gbdt=True):
             model_inputs = LR_MODEL + [cols[i]]
             train2_df, test2_df = assemble_vectors(train_df, test_df, model_inputs)
 
-            # print("Checking LR {}".format(model_inputs))
             lr_r2, lr_rmse = run_linear_regression(train2_df, test2_df)
             lr_result.append(model_inputs + [lr_rmse])
 
@@ -157,7 +200,6 @@ def test_col_combos(train_df, test_df, lr=True, dt=True, gbdt=True):
             model_inputs = DT_MODEL + [cols[i]]
             train2_df, test2_df = assemble_vectors(train_df, test_df, model_inputs)
 
-            # print("Checking DT {}".format(model_inputs))
             dt_rmse = run_decision_tree(train2_df, test2_df)
             dt_result.append(model_inputs + [dt_rmse])
 
@@ -165,7 +207,6 @@ def test_col_combos(train_df, test_df, lr=True, dt=True, gbdt=True):
             model_inputs = GBDT_MODEL + [cols[i]]
             train2_df, test2_df = assemble_vectors(train_df, test_df, model_inputs)
 
-            # print("Checking GBDT {}".format(model_inputs))
             gbdt_rmse = run_gb_tree(train2_df, test2_df)
             gbdt_result.append(model_inputs + [gbdt_rmse])
 
@@ -180,6 +221,17 @@ def test_col_combos(train_df, test_df, lr=True, dt=True, gbdt=True):
 
 
 def find_best_col(res):
+    '''
+    Given the result of testing a model, determine which test had the lowest
+    root mean squared error. Return the column tested and the error value.
+
+    Args:
+        res: list of lists containing the result of tests.
+
+    Returns:
+        best_col: Name of the column which had the lowest error.
+        best_val: The error value of the best_col.
+    '''
     best_col = res[0][-2]
     best_val = res[0][-1]
     for i in range(1, len(res)):
@@ -192,6 +244,25 @@ def find_best_col(res):
     return best_col, best_val
 
 def main():
+    '''
+    Read a training and test dataframe from specified input files. Create a
+    model for linear regression, decision tree, and gradient boosted decision
+    tree strategies using the following strategy:
+
+    Create a model with each column and find the one with the lowest error.
+    Create every model with two columns where the first is the best single
+    column. Choose the best model from this step. Add another column by testing
+    every remaining column and choosing the lowest error. Repeat this until
+    adding a new column does not decrease the error.
+
+    Outputs:
+        The result of every test into csv files as denoted by the logging.
+
+    Prints:
+        The list of columns that achieved the lowest error with the above
+        strategy. This is for each ML model.
+    '''
+
     sc= SparkContext()
     sqlContext = SQLContext(sc)
 
@@ -199,19 +270,13 @@ def main():
         os.mkdir(OUTPUT_DIR)
 
     # Load in Data
-    # df = sqlContext.read.format('com.databricks.spark.csv') \
-    #                .options(header='true', inferschema='true').load('data/ml_input.csv')
 
     train_df = sqlContext.read.format('com.databricks.spark.csv') \
-                   .options(header='true', inferschema='true').load('data/ml_input.csv')
+                   .options(header='true', inferschema='true').load(TRAINING_DATA)
     test_df = sqlContext.read.format('com.databricks.spark.csv') \
-                   .options(header='true', inferschema='true').load('data/ml_test.csv')
+                   .options(header='true', inferschema='true').load(TEST_DATA)
 
-    # Get all the non date/feature columns
-    # cols = train_df.columns[2:]
-    # test_cols(train_df, test_df, cols)
-
-    lr, dt, gbdt = True, True, True
+    lr, dt, gbdt = TRAIN_LR, TRAIN_DT, TRAIN_GBDT
     lr_best, dt_best, gbdt_best = 1000000, 1000000, 1000000
 
     while (lr or dt or gbdt):
@@ -223,7 +288,6 @@ def main():
             if lr_best_new < lr_best:
                 lr_best = lr_best_new
                 LR_MODEL.append(lr_col)
-                # print("  ADD TO LR: {}".format(lr_col))
             else:
                 lr = False
                 print("  DONE WITH LR AT SIZE: {}".format(len(LR_MODEL)))
@@ -234,7 +298,6 @@ def main():
             if dt_best_new < dt_best:
                 dt_best = dt_best_new
                 DT_MODEL.append(dt_col)
-                # print("  ADD TO DT: {}".format(dt_col))
             else:
                 dt = False
                 print("  DONE WITH DT AT SIZE: {}".format(len(DT_MODEL)))
@@ -245,20 +308,20 @@ def main():
             if gbdt_best_new < gbdt_best:
                 gbdt_best = gbdt_best_new
                 GBDT_MODEL.append(gbdt_col)
-                # print("  ADD TO GBDT: {}".format(gbdt_col))
             else:
                 gbdt = False
                 print("  DONE WITH GBDT AT SIZE: {}".format(len(GBDT_MODEL)))
 
+    # Print a summary of the results
     print("")
     print("--------------------------------------------------")
     print("FINAL RESULTS:")
     print("")
     print("LR_MODEL = [\n'{}']".format("', \n'".join(LR_MODEL)))
     print("")
-    print("DT_MODEL = [\n'{}']".format(", \n".join(DT_MODEL)))
+    print("DT_MODEL = [\n'{}']".format("', \n'".join(DT_MODEL)))
     print("")
-    print("GBDT_MODEL = [\n'{}']".format(", \n".join(GBDT_MODEL)))
+    print("GBDT_MODEL = [\n'{}']".format("', \n'".join(GBDT_MODEL)))
 
 if __name__ == "__main__":
     main()
