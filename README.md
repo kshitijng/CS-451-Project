@@ -1,4 +1,4 @@
-# Predicting cases next week and end of pandemic
+# Predicting Covid-19 cases next week and at the end of pandemic
 
 
 ### Initial setup
